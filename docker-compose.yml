@@ -10,6 +10,23 @@ services:
       - "3307:3306"
     volumes:
       - ./tmp/mysql_data:/var/lib/mysql
+  redis:
+    image: redis:5-alpine
+    command: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis:/data
+  sidekiq:
+    depends_on:
+      - db
+      - redis
+    build: .
+    command: bundle exec sidekiq
+    volumes:
+      - ./:/rails_toolbox/tmp
+    environment:
+      - REDIS_URL_SIDEKIQ=redis://redis:6379/1
   app:
     build: .
     command: bundle exec rails s -p 3000 -b '0.0.0.0'
@@ -19,5 +36,11 @@ services:
         - "3000:3000"
     depends_on:
       - db
+      - redis
     links:
       - db
+      - redis
+      - sidekiq
+volumes:
+  redis:
+  mysql:

@@ -18,5 +18,8 @@ module RailsToolbox
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    config.autoload_paths += %W(#{config.root})
+
+    config.active_job.queue_adapter = :sidekiq
   end
 end
